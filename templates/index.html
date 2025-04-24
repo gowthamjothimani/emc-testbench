@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EMC Test Bench</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    </head>
+    <body>
+        <!--Navigation Bar-->
+        <div class="navbar">
+            <h1 class="heading">EMC Test Bench</h1>
+            <div class="status">
+                <p>CPU: <span class="status-box" id="cpu_usage"> </span></p>
+                <p>Temp: <span class="status-box" id="temp_display">-- °C</span></p>
+                <p>Humidity: <span class="status-box" id="hum_display">-- %</span></p> 
+                <span id="networkIcon" class="network-icon" onclick="openMQTTConfig()">🔌</span>
+                <button class="dashboard-button" onclick="saveLog()">Save Log</button>
+                <button class="dashboard-button" onclick="exportLog()">Export Log</button>
+                <button class="dashboard-button" id="startTestBtn" onclick="startTest()">Start Test</button>
+                <button class="dashboard-cancel-button" id="stopTestBtn" onclick="stopTest()">Stop Test</button>
+
+            </div>
+        </div>
+
+        <!-- MQTT Configuration Pop-up -->
+    <div id="mqttConfigModal" class="modal">
+        <div class="modal-content">
+            <h2>MQTT Configuration</h2>
+            <label>Hostname:</label>
+            <input type="text" id="mqtt_hostname" value="broker.hivemq.com">
+            
+            <label>Port:</label>
+            <input type="number" id="mqtt_port" value="1883">
+            
+            <label>Topic:</label>
+            <input type="text" id="mqtt_topic" value="emc_test">
+            
+            <label>Username:</label>
+            <input type="text" id="mqtt_username">
+            
+            <label>Password:</label>
+            <input type="password" id="mqtt_password">
+
+            <button onclick="saveMQTTConfig()">Save</button>
+            <button onclick="closeMQTTConfig()">Cancel</button>
+        </div>
+    </div>
+
+
+        <!--Container block-->
+        <div class="container">
+            <button class="tab-button" onclick="showTab('gasTab')">Gas</button>
+            <button class="tab-button" onclick="showTab('cardTab')">Card</button>
+            <button class="tab-button" onclick="showTab('alarmTab')">Alarm</button>
+        </div>
+
+        <!--Gas Block-->
+        <div id="gasTab" class="tab active">
+            <h2>Gas Testing</h2>
+            <div class="row">
+                <label for="gasSensorSelect">Select Gas Sensor:</label>
+                <select id="sensorSelect" onchange="selectSensor()">
+                    <option value="" disabled selected>Select a Sensor</option>
+                </select>
+            </div>
+            <div class="row">
+                <p>Sensor State: <span class="status-box" id="gasData">--</span></p>
+                <p>Gas Power IN: <span class="status-box" id="gasIn">--</span></p>
+                <p>Gas Fault State: <span class="status-box" id="gasState">--</span></p>
+            </div>
+            <div class="row">
+                <button class="dashboard-button" onclick="controlEfuse('efuse_gas_on')">Gas eFuse On</button>
+                <button class="dashboard-cancel-button" onclick="controlEfuse('efuse_gas_off')">Gas eFuse Off</button>
+            </div>
+        </div>
+
+        <!-- Card Testing Tab -->
+        <div id="cardTab" class="tab">
+            <h2>Card Testing</h2>
+            <div class="row">
+                <p>Badge Fault State: <span class="status-box" id="badgeState">--</span></p>
+                <p>In Reader: <span class="status-box" id="inData">--</span></p>
+                <p>Out Reader: <span class="status-box" id="outData">--</span></p>
+            </div> 
+            <div class="row">
+                <button class="dashboard-button" onclick="controlEfuse('efuse_badge_on')">Badge eFuse On</button>
+                <button class="dashboard-cancel-button" onclick="controlEfuse('efuse_badge_off')">Badge eFuse Off</button>
+                <button class="dashboard-button" onclick="controlLamp('lamp_badge_on')">Badge Lamp On</button>
+                <button class="dashboard-cancel-button" onclick="controlLamp('lamp_badge_off')">Badge Lamp Off</button>
+            </div>
+        </div>
+
+        <!-- Alarm Unit Testing Tab -->
+        <div id="alarmTab" class="tab">
+            <h2>Alarm Unit Testing</h2>
+            <div class="row">
+                <p>Alarm Fault State: <span class="status-box" id="alarmState">--</span></p>
+                <button class="dashboard-button" onclick="controlEfuse('efuse_alarm_on')">Alarm eFuse On</button>
+                <button class="dashboard-cancel-button" onclick="controlEfuse('efuse_alarm_off')">Alarm eFuse Off</button>
+            </div>
+            <h2>Lamp Control</h2>
+            <div class="row">
+                <button class="dashboard-button" onclick="controlLamp('lamp_alarm_red_on')">Alarm Red Lamp On</button>
+                <button class="dashboard-cancel-button" onclick="controlLamp('lamp_alarm_red_off')">Alarm Red Lamp Off</button>
+                <button class="dashboard-button" onclick="controlLamp('lamp_alarm_green_on')">Alarm Green Lamp On</button>
+                <button class="dashboard-cancel-button" onclick="controlLamp('lamp_alarm_green_off')">Alarm Green Lamp Off</button>
+            </div>
+            <h2>Alarm Sound</h2>
+            <div class="row">
+                <button class="dashboard-button" onclick="controlAlarm('alarm_sound_on')">Alarm Sound On</button>
+                <button class="dashboard-cancel-button" onclick="controlAlarm('alarm_sound_off')">Alarm Sound Off</button>
+            </div>
+        </div>
+    </body>
+</html>
