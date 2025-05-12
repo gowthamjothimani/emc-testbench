@@ -176,7 +176,7 @@ socket.on('sensor_selected', function (data) {
     }
 
     function updateTempHum() {
-        fetch('/read_sensors')  /
+        fetch('/read_sensors')
             .then(response => response.json())
             .then(data => {
                 if (data.temperature && data.humidity) {
